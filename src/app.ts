@@ -4,7 +4,6 @@ import { FastifyPluginAsync, FastifyServerOptions } from "fastify";
 import {
   validatorCompiler,
   serializerCompiler,
-  ZodTypeProvider,
 } from "fastify-type-provider-zod";
 
 export interface AppOptions

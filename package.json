@@ -20,9 +20,12 @@
   "dependencies": {
     "@fastify/autoload": "^6.0.0",
     "@fastify/env": "^5.0.2",
+    "@fastify/multipart": "^9.0.2",
     "@fastify/sensible": "^6.0.0",
+    "@fastify/static": "^8.0.4",
     "@fastify/swagger": "^9.4.1",
     "@fastify/swagger-ui": "^5.2.1",
+    "@joggr/fastify-prisma": "^5.0.0",
     "argon2": "^0.41.1",
     "fastify": "^5.0.0",
     "fastify-cli": "^7.3.0",
