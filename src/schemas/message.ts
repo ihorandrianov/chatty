@@ -8,14 +8,28 @@ export const messageSchema = z.object({
   id: z.number(),
 });
 
+export const textMessageSchema = z.object({
+  content: z.string().trim().min(1),
+});
+
+export type MessageBody = z.infer<typeof textMessageSchema>;
+
 export type Message = z.infer<typeof messageSchema>;
 
 export type MessageType = z.infer<typeof messageTypeScheme>;
 
-export const createMessageScheme = z.object({
-  contentType: messageTypeScheme,
-  content: z.string(),
-  userId: z.number(),
-});
+export const createMessageScheme = z.discriminatedUnion("contentType", [
+  z.object({
+    contentType: z.literal("TEXT"),
+    content: z.string(),
+    userId: z.number(),
+  }),
+  z.object({
+    contentType: z.literal("FILE"),
+    content: z.string(),
+    userId: z.number(),
+    mimetype: z.string(),
+  }),
+]);
 
 export type CreateMessage = z.infer<typeof createMessageScheme>;

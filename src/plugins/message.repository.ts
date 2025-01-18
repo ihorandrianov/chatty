@@ -2,12 +2,12 @@ import { CreateMessage, Message } from "../schemas/message";
 import { PrismaClient } from "@prisma/client";
 import fp from "fastify-plugin";
 
-type ListMessagesArgs = {
+export type ListMessagesArgs = {
   cursor?: number;
   limit: number;
 };
 
-interface MessageRepository {
+export interface MessageRepository {
   createMessage(createMessageArgs: CreateMessage): Promise<Message>;
 
   getMessageById(id: number): Promise<Message | null>;
@@ -15,21 +15,18 @@ interface MessageRepository {
   listMessages(listMessagesArgs: ListMessagesArgs): Promise<Message[]>;
 }
 
-class PrismaMessageRepository implements MessageRepository {
+export class PrismaMessageRepository implements MessageRepository {
   constructor(private prisma: PrismaClient) {}
 
-  async createMessage({
-    contentType,
-    content,
-    userId,
-  }: CreateMessage): Promise<Message> {
+  async createMessage(message: CreateMessage): Promise<Message> {
     return this.prisma.messages.create({
       data: {
-        contentType,
-        content,
+        contentType: message.contentType,
+        content: message.content,
+        mimetype: message.contentType === "FILE" ? message.mimetype : undefined,
         Users: {
           connect: {
-            id: userId,
+            id: message.userId,
           },
         },
       },

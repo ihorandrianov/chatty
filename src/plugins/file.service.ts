@@ -6,15 +6,27 @@ import path from "node:path";
 import sanitize from "sanitize-filename";
 import { SavedFile, savedFileScheme } from "../schemas/file";
 
-interface FileService {
+export interface FileService {
   saveFile(file: MultipartFile): Promise<SavedFile>;
   generateSafeFileName(filename: string): string;
+  getDefaultFolder(): string;
 }
 
-class FSFileService implements FileService {
+const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "application/pdf",
+  "text/plain",
+];
+
+export class FSFileService implements FileService {
   constructor(private writeFolder: string) {}
   async saveFile(fileRef: MultipartFile) {
     const { mimetype, filename, file } = fileRef;
+    if (!ALLOWED_MIME_TYPES.includes(mimetype)) {
+      throw new Error("This mimetype is not allowed");
+    }
     const sanitizedFilename = this.generateSafeFileName(filename);
     const savePath = path.join(
       __dirname,
@@ -35,6 +47,11 @@ class FSFileService implements FileService {
     const sanitizedFilename = sanitize(filename).replaceAll(" ", "_");
     const now = Math.floor(Date.now() / 1000).toString();
     return `${now}_${sanitizedFilename}`;
+  }
+
+  getDefaultFolder(): string {
+    const defaultFolder = this.writeFolder;
+    return defaultFolder;
   }
 }
 
