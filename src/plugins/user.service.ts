@@ -1,5 +1,6 @@
 import fp from "fastify-plugin";
 import { User, userSchema, LoginPayload } from "../schemas/user";
+import { NetError } from "../error/error";
 
 export interface UserServiceOptions {}
 
@@ -16,24 +17,37 @@ export default fp<UserServiceOptions>(
       createUser: async (credentials) => {
         const { login, password } = credentials;
         const passwordHash = await cryptoService.hashPassword(password);
-        const user = await userRepository.createUser({
-          login,
-          password: passwordHash,
-        });
+        try {
+          const user = await userRepository.createUser({
+            login,
+            password: passwordHash,
+          });
 
-        return user;
+          return user;
+        } catch (e) {
+          fastify.log.error(e, "Failed to register user!");
+          throw new NetError(
+            400,
+            "Failed to register, check username or password and try again later",
+          );
+        }
       },
       verifyUser: async (authHeader) => {
-        const { login, password } = cryptoService.parseAuth(authHeader);
-        const user = await userRepository.getUserByLogin(login);
-        const verified = await cryptoService.verifyPassword(
-          user?.password,
-          password,
-        );
-        if (verified) {
-          return userSchema.strip().parse(user);
+        try {
+          const { login, password } = cryptoService.parseAuth(authHeader);
+          const user = await userRepository.getUserByLogin(login);
+          const verified = await cryptoService.verifyPassword(
+            user?.password,
+            password,
+          );
+          if (verified) {
+            return userSchema.strip().parse(user);
+          }
+          return null;
+        } catch (e) {
+          fastify.log.error(e, "Failed to login");
+          throw new NetError(403, "Wrong login or password");
         }
-        return null;
       },
     };
     fastify.decorate("userService", userService);
@@ -46,5 +60,7 @@ export default fp<UserServiceOptions>(
 
 // When using .decorate you have to specify added properties for Typescript
 declare module "fastify" {
-  export interface FastifyInstance {}
+  export interface FastifyInstance {
+    userService: UserService;
+  }
 }

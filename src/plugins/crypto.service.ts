@@ -2,7 +2,7 @@ import fp from "fastify-plugin";
 import * as argon2 from "argon2";
 import { LoginPayload, loginSchema } from "../schemas/user";
 
-export interface UserServiceOptions {
+export interface CryptoServiceOptions {
   argon: typeof argon2;
 }
 
@@ -18,7 +18,7 @@ interface CryptoService {
   parseAuth: (authHeader: string) => LoginPayload;
 }
 
-export default fp<UserServiceOptions>(
+export default fp<CryptoServiceOptions>(
   async (fastify, opts) => {
     const ARGON_SECRET = fastify.config.ARGON_SECRET;
     const secretBuffer = Buffer.from(ARGON_SECRET);

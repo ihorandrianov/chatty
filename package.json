@@ -32,6 +32,7 @@
     "fastify-plugin": "^5.0.0",
     "fastify-type-provider-zod": "^4.0.2",
     "prisma": "^6.2.1",
+    "sanitize-filename": "^1.6.3",
     "zod": "^3.24.1"
   },
   "devDependencies": {
