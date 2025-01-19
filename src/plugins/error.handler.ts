@@ -7,6 +7,7 @@ export default fp(
   async function errorHandle(fastify: FastifyInstance) {
     fastify.setErrorHandler((error, request, reply) => {
       fastify.log.error(error);
+
       if (error instanceof ZodError) {
         const response: ErrorResponse = {
           message: "Validation error",
@@ -29,16 +30,18 @@ export default fp(
         };
         return reply.status(error.statusCode).send(response);
       }
-
+      const isValidation = !!error.stack?.includes("validate");
       const response: ErrorResponse = {
-        message: "Internal Server Error",
-        code: "INTERNAL_SERVER_ERROR",
-        details: {
-          stack: error.stack,
-        },
+        message: error.message,
+        code: isValidation ? "VALIDATION ERROR" : "INTERNAL SERVER ERROR",
+        details: isValidation
+          ? undefined
+          : {
+              stack: error.stack,
+            },
       };
 
-      return reply.status(500).send(response);
+      return reply.status(isValidation ? 400 : 500).send(response);
     });
   },
   {
