@@ -15,7 +15,6 @@ export default fp(
       async (request: FastifyRequest, reply: FastifyReply) => {
         try {
           const authHeader = request.headers.authorization;
-          fastify.log.error(authHeader);
           if (authHeader) {
             const user = await userService.verifyUser(authHeader);
             if (!user) {

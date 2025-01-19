@@ -1,4 +1,4 @@
-import { CreateMessage, Message } from "../schemas/message";
+import { CreateMessage, Message, messageSchema } from "../schemas/message";
 import { PrismaClient } from "@prisma/client";
 import fp from "fastify-plugin";
 
@@ -19,30 +19,53 @@ export class PrismaMessageRepository implements MessageRepository {
   constructor(private prisma: PrismaClient) {}
 
   async createMessage(message: CreateMessage): Promise<Message> {
-    return this.prisma.messages.create({
+    const newMessage = await this.prisma.messages.create({
       data: {
         contentType: message.contentType,
         content: message.content,
         mimetype: message.contentType === "FILE" ? message.mimetype : undefined,
-        Users: {
+        user: {
           connect: {
             id: message.userId,
           },
         },
       },
+      omit: {
+        userId: true,
+      },
+      include: {
+        user: {
+          select: {
+            login: true,
+          },
+        },
+      },
     });
+
+    return messageSchema.parse(newMessage);
   }
 
   async getMessageById(id: number): Promise<Message | null> {
-    return this.prisma.messages.findUnique({
+    const message = await this.prisma.messages.findUnique({
       where: {
         id,
       },
+      omit: {
+        userId: true,
+      },
+      include: {
+        user: {
+          select: {
+            login: true,
+          },
+        },
+      },
     });
+    return message ? messageSchema.parse(message) : null;
   }
 
   async listMessages({ cursor, limit }: ListMessagesArgs): Promise<Message[]> {
-    return this.prisma.messages.findMany({
+    const messages = await this.prisma.messages.findMany({
       take: limit,
       skip: cursor ? 1 : 0,
       cursor: cursor
@@ -53,7 +76,19 @@ export class PrismaMessageRepository implements MessageRepository {
       orderBy: {
         createdAt: "desc",
       },
+      omit: {
+        userId: true,
+      },
+      include: {
+        user: {
+          select: {
+            login: true,
+          },
+        },
+      },
     });
+
+    return messages.map((message) => messageSchema.parse(message));
   }
 }
 

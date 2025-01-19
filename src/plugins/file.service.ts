@@ -2,6 +2,7 @@ import { MultipartFile } from "@fastify/multipart";
 import fp from "fastify-plugin";
 import { pipeline } from "node:stream/promises";
 import { createWriteStream } from "node:fs";
+import { unlink } from "node:fs/promises";
 import path from "node:path";
 import sanitize from "sanitize-filename";
 import { SavedFile, savedFileScheme } from "../schemas/file";
@@ -12,7 +13,7 @@ export interface FileService {
   getDefaultFolder(): string;
 }
 
-const ALLOWED_MIME_TYPES = [
+export const ALLOWED_MIME_TYPES = [
   "image/jpeg",
   "image/png",
   "image/gif",
@@ -25,6 +26,7 @@ export class FSFileService implements FileService {
   async saveFile(fileRef: MultipartFile) {
     const { mimetype, filename, file } = fileRef;
     if (!ALLOWED_MIME_TYPES.includes(mimetype)) {
+      file.destroy(new Error("This mimetype is not allowed"));
       throw new Error("This mimetype is not allowed");
     }
     const sanitizedFilename = this.generateSafeFileName(filename);
@@ -36,6 +38,10 @@ export class FSFileService implements FileService {
       sanitizedFilename,
     );
     await pipeline(file, createWriteStream(savePath));
+    if (file.truncated) {
+      await unlink(savePath);
+      throw new Error("File is too big, limit is 5 mb");
+    }
 
     return savedFileScheme.parse({
       mimetype,

@@ -6,6 +6,13 @@ export const messageSchema = z.object({
   contentType: messageTypeScheme,
   content: z.string(),
   id: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  user: z
+    .object({
+      login: z.string(),
+    })
+    .transform((user) => user.login),
 });
 
 export const textMessageSchema = z.object({
