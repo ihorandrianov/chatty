@@ -10,6 +10,7 @@ export default fp(
         `../../${fastify.config.DEFAULT_STATIC_FOLDER}`,
       ),
       prefix: "/uploads/",
+      cacheControl: true,
     });
   },
   {
