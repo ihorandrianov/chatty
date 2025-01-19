@@ -23,6 +23,7 @@ cat .env.example > .env
 2. Start the application using Docker Compose:
 
 ```bash
+cd .deploy
 docker compose --env-file ../.env up -d
 ```
 
