@@ -48,6 +48,7 @@ docker-compose*
 tmp/
 temp/
 
+
 # Project specific
 uploads/*
 !uploads/.gitkeep

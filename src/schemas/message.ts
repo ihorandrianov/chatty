@@ -15,6 +15,16 @@ export const messageSchema = z.object({
     .transform((user) => user.login),
 });
 
+export const messageResponseSchema = z.object({
+  contentType: messageTypeScheme,
+  content: z.string(),
+  id: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  user: z.string(),
+});
+export const messsageListResponse = z.array(messageResponseSchema);
+
 export const textMessageSchema = z.object({
   content: z.string().trim().min(1),
 });

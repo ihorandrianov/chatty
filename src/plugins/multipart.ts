@@ -1,10 +1,9 @@
 import fp from "fastify-plugin";
 import { fastifyMultipart } from "@fastify/multipart";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
 export default fp(
   async (fastify) => {
+    const MAX_FILE_SIZE = fastify.config.FILESIZE_LIMIT;
     fastify.register(fastifyMultipart, {
       limits: {
         fields: 0, // Max number of non-file fields
@@ -17,5 +16,6 @@ export default fp(
   },
   {
     name: "multipart",
+    dependencies: ["env"],
   },
 );

@@ -3,7 +3,12 @@ import fastifyEnv from "@fastify/env";
 
 const ENV_SCHEMA = {
   type: "object",
-  required: ["ARGON_SECRET", "DATABASE_URL", "DEFAULT_STATIC_FOLDER"],
+  required: [
+    "ARGON_SECRET",
+    "DATABASE_URL",
+    "DEFAULT_STATIC_FOLDER",
+    "FILESIZE_LIMIT",
+  ],
   properties: {
     DATABASE_URL: {
       type: "string",
@@ -13,6 +18,9 @@ const ENV_SCHEMA = {
     },
     DEFAULT_STATIC_FOLDER: {
       type: "string",
+    },
+    FILESIZE_LIMIT: {
+      type: "number",
     },
   },
 };
@@ -35,6 +43,7 @@ declare module "fastify" {
       DATABASE_URL: string;
       ARGON_SECRET: string;
       DEFAULT_STATIC_FOLDER: string;
+      FILESIZE_LIMIT: number;
     };
   }
 }
